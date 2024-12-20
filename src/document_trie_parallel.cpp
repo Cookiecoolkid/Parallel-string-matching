@@ -4,6 +4,7 @@
 #include <vector>
 #include <unordered_map>
 #include <omp.h>
+#include <algorithm> // For std::sort
 
 typedef unsigned long long ull;
 
@@ -30,18 +31,47 @@ void insert(TrieNode* root, const std::string& pattern, ull patternIndex) {
 }
 
 // Function to search for all patterns in the text using the Trie
-void search(const std::string& text, TrieNode* root, const std::vector<std::string>& patterns, std::unordered_map<std::string, std::vector<ull>>& foundPositions, ull start, ull end) {
+void search(const std::string& text, TrieNode* root, const std::vector<std::string>& patterns, std::unordered_map<std::string, std::vector<ull>>& localFoundPositions, ull start, ull end) {
+    ull newline_count = 0; // Count of newlines encountered in the current chunk
     for (ull i = start; i < end; ++i) {
+        if (text[i] == '\n') {
+            newline_count++;
+            continue; // Skip newline characters
+        }
         TrieNode* node = root;
         for (ull j = i; j < text.size(); ++j) {
+            if (text[j] == '\n') {
+                newline_count++;
+                continue; // Skip newline characters
+            }
             if (node->children[static_cast<unsigned char>(text[j])] == nullptr) {
                 break;
             }
             node = node->children[static_cast<unsigned char>(text[j])];
             if (node->isEndOfWord) {
-                foundPositions[patterns[node->patternIndex]].push_back(i);
+                localFoundPositions[patterns[node->patternIndex]].push_back(i - newline_count);
             }
         }
+    }
+}
+
+// Function to calculate the total number of newlines in each chunk
+void calculateNewlineTotals(const std::string& text, ull num_threads, ull chunk_size, std::vector<ull>& newlineTotals) {
+    #pragma omp parallel for
+    for (ull i = 0; i < num_threads; ++i) {
+        ull start = i * chunk_size;
+        ull end = (i == num_threads - 1) ? text.size() : start + chunk_size;
+        ull newline_count = 0;
+        for (ull j = start; j < end; ++j) {
+            if (text[j] == '\n') {
+                newline_count++;
+            }
+        }
+        newlineTotals[i] = newline_count;
+    }
+
+    for (ull i = 1; i < num_threads; ++i) {
+        newlineTotals[i] += newlineTotals[i - 1];
     }
 }
 
@@ -98,12 +128,12 @@ int main() {
     // Perform the search using the Trie tree with OpenMP parallelization
     std::unordered_map<std::string, std::vector<ull>> foundPositions;
     ull text_size = text.size();
+    ull num_threads = omp_get_max_threads();
+    ull chunk_size = text_size / num_threads;
     #pragma omp parallel
     {
         std::unordered_map<std::string, std::vector<ull>> localFoundPositions;
-        ull num_threads = omp_get_num_threads();
         ull thread_id = omp_get_thread_num();
-        ull chunk_size = text_size / num_threads;
         ull start = thread_id * chunk_size;
         ull end = (thread_id == num_threads - 1) ? text_size : start + chunk_size;
         search(text, root, patterns, localFoundPositions, start, end);
@@ -116,14 +146,26 @@ int main() {
         }
     }
 
-    // Adjust positions based on newlines
-    ull newline_count = 0;
+
+    // Calculate the total number of newlines in each chunk
+    std::vector<ull> newlineTotals(num_threads);
+    calculateNewlineTotals(text, num_threads, chunk_size, newlineTotals);
+
+    // // Output the newline totals
+    // for (ull i = 0; i < num_threads; ++i) {
+    //     std::cout << "Chunk " << i << " newline total: " << newlineTotals[i] << std::endl;
+    // }
+
+    // std::cout << "======================================================" << std::endl;    
+
+
+    // Update positions based on the total number of newlines in previous chunks
     for (auto& entry : foundPositions) {
         for (auto& pos : entry.second) {
-            while (pos + newline_count < text.size() && text[pos + newline_count] == '\n') {
-                newline_count++;
+            ull chunk_id = pos / chunk_size;
+            if (chunk_id > 0) {
+                pos -= newlineTotals[chunk_id - 1]; // Subtract the total number of newlines in previous chunks
             }
-            pos -= newline_count;
         }
     }
 
