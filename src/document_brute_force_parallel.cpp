@@ -70,7 +70,6 @@ int main() {
         return 1;
     }
 
-    // Read patterns from the patterns file
     std::vector<std::string> patterns;
     std::map<std::string, std::vector<ull>> pattern_positions;
     std::string pattern;

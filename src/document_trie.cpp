@@ -10,7 +10,7 @@ typedef unsigned long long ull;
 struct TrieNode {
     std::vector<TrieNode*> children;
     bool isEndOfWord;
-    ull patternIndex; // Index of the pattern in the patterns vector
+    ull patternIndex;
 
     TrieNode() : isEndOfWord(false), patternIndex(-1) {
         children.resize(256, nullptr); // ASCII 字符集
@@ -36,14 +36,14 @@ std::unordered_map<std::string, std::vector<ull>> search(const std::string& text
     for (ull i = 0; i < text.size(); ++i) {
         if (text[i] == '\n') {
             newline_count++;
-            continue; // Skip newline characters
+            continue;
         }
         TrieNode* node = root;
         ull adjusted_i = i - newline_count; // Adjusted index that ignores newlines
         for (ull j = i; j < text.size(); ++j) {
             if (text[j] == '\n') {
                 newline_count++;
-                continue; // Skip newline characters
+                continue; 
             }
             if (node->children[static_cast<unsigned char>(text[j])] == nullptr) {
                 break;
@@ -127,7 +127,6 @@ int main() {
     double end_time = omp_get_wtime();
     std::cout << "Execution time: " << end_time - start_time << " seconds." << std::endl;
 
-    // Clean up
     delete root;
     patterns_file.close();
 

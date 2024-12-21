@@ -68,7 +68,6 @@ int main() {
         return 1;
     }
 
-    // Read patterns from the patterns file
     std::vector<std::string> patterns;
     std::string pattern;
     while (std::getline(patterns_file, pattern)) {

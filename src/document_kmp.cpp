@@ -36,8 +36,8 @@ std::vector<ull> kmp_search(const std::string& text, const std::string& pattern)
     ull n = text.size();
     ull m = pattern.size();
     std::vector<int> next = build_next_array(pattern);
-    ull i = 0; // index for text
-    ull j = 0; // index for pattern
+    ull i = 0;
+    ull j = 0;
     ull newline_count = 0;
 
     while (i < n) {
@@ -102,7 +102,6 @@ int main() {
         return 1;
     }
 
-    // Read patterns from the patterns file
     std::vector<std::string> patterns;
     std::string pattern;
     while (std::getline(patterns_file, pattern)) {
