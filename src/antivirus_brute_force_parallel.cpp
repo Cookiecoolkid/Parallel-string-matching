@@ -16,6 +16,7 @@ bool brute_force_search(const std::string& text, const std::string& pattern) {
     ll m = pattern.size();
     bool found = false;
 
+    #pragma omp parallel for shared(found)
     for (ll i = 0; i <= n - m; ++i) {
         if (found) continue; // Skip remaining iterations if found
         ll j = 0;
@@ -23,6 +24,7 @@ bool brute_force_search(const std::string& text, const std::string& pattern) {
             ++j;
         }
         if (j == m) {
+            #pragma omp critical
             found = true;
         }
     }
@@ -93,6 +95,8 @@ int main() {
         }
     }
 
+    // Parallelize the file reading and pattern matching
+    #pragma omp parallel for
     for (size_t i = 0; i < text_files.size(); ++i) {
         std::string text = read_file(text_files[i]);
         if (text.empty()) {
@@ -107,11 +111,14 @@ int main() {
         }
 
         if (!matched_patterns.empty()) {
-            std::cout <<  text_files[i];
-            for (const auto& pattern_file : matched_patterns) {
-                std::cout << " " << pattern_file;
+            #pragma omp critical
+            {
+                std::cout <<  text_files[i];
+                for (const auto& pattern_file : matched_patterns) {
+                    std::cout << " " << pattern_file;
+                }
+                std::cout << std::endl;
             }
-            std::cout << std::endl;
         }
     }
 

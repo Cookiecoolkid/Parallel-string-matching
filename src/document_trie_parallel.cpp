@@ -4,7 +4,7 @@
 #include <vector>
 #include <unordered_map>
 #include <omp.h>
-#include <algorithm> // For std::sort
+#include <algorithm>
 
 typedef unsigned long long ull;
 
@@ -130,12 +130,18 @@ int main() {
     ull text_size = text.size();
     ull num_threads = omp_get_max_threads();
     ull chunk_size = text_size / num_threads;
+
+    size_t max_pattern_length = 0;
+    for (const auto& pattern : patterns) {
+        max_pattern_length = std::max(max_pattern_length, pattern.size());
+    }
+
     #pragma omp parallel
     {
         std::unordered_map<std::string, std::vector<ull>> localFoundPositions;
         ull thread_id = omp_get_thread_num();
         ull start = thread_id * chunk_size;
-        ull end = (thread_id == num_threads - 1) ? text_size : start + chunk_size;
+        ull end = (thread_id == num_threads - 1) ? text_size : start + chunk_size + max_pattern_length;
         search(text, root, patterns, localFoundPositions, start, end);
 
         #pragma omp critical

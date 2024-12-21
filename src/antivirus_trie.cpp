@@ -2,35 +2,54 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <unordered_map>
 #include <filesystem>
 #include <omp.h>
-#include <algorithm>
 
 namespace fs = std::filesystem;
 
-typedef long long ll;
+typedef unsigned long long ull;
 
-// Function to perform brute-force string matching
-bool brute_force_search(const std::string& text, const std::string& pattern) {
-    ll n = text.size();
-    ll m = pattern.size();
-    bool found = false;
+struct TrieNode {
+    std::vector<TrieNode*> children;
+    bool isEndOfWord;
+    ull patternIndex; // Index of the pattern in the patterns vector
 
-    for (ll i = 0; i <= n - m; ++i) {
-        if (found) continue; // Skip remaining iterations if found
-        ll j = 0;
-        while (j < m && text[i + j] == pattern[j]) {
-            ++j;
-        }
-        if (j == m) {
-            found = true;
-        }
+    TrieNode() : isEndOfWord(false), patternIndex(-1) {
+        children.resize(256, nullptr); // ASCII 字符集
     }
+};
 
-    return found;
+void insert(TrieNode* root, const std::string& pattern, ull patternIndex) {
+    TrieNode* node = root;
+    for (char ch : pattern) {
+        if (node->children[static_cast<unsigned char>(ch)] == nullptr) {
+            node->children[static_cast<unsigned char>(ch)] = new TrieNode();
+        }
+        node = node->children[static_cast<unsigned char>(ch)];
+    }
+    node->isEndOfWord = true;
+    node->patternIndex = patternIndex;
 }
 
-// Function to read a file into a string
+// Function to search for all patterns in the text using the Trie
+std::unordered_map<ull, std::string> search(const std::string& text, TrieNode* root, const std::vector<std::string>& pattern_files) {
+    std::unordered_map<ull, std::string> matchedPatterns;
+    for (ull i = 0; i < text.size(); ++i) {
+        TrieNode* node = root;
+        for (ull j = i; j < text.size(); ++j) {
+            if (node->children[static_cast<unsigned char>(text[j])] == nullptr) {
+                break;
+            }
+            node = node->children[static_cast<unsigned char>(text[j])];
+            if (node->isEndOfWord) {
+                matchedPatterns[node->patternIndex] = pattern_files[node->patternIndex];
+            }
+        }
+    }
+    return matchedPatterns;
+}
+
 std::string read_file(const std::string& filename) {
     std::ifstream file(filename, std::ios::binary | std::ios::ate);
     if (!file.is_open()) {
@@ -50,7 +69,6 @@ std::string read_file(const std::string& filename) {
     return buffer;
 }
 
-// Function to get all files in a directory recursively
 std::vector<std::string> get_all_files(const std::string& directory, const std::string& extension = "") {
     std::vector<std::string> files;
     for (const auto& entry : fs::recursive_directory_iterator(directory)) {
@@ -73,42 +91,30 @@ int main() {
     // Get all pattern files in the patterns directory
     std::vector<std::string> pattern_files = get_all_files(patterns_directory);
 
-    // // Output the files
-    // std::cout << "Text files: " << text_files.size() << std::endl;
-    // for (const auto& file : text_files) {
-    //     std::cout << file << std::endl;
-    // }
+    // Initialize the Trie tree
+    TrieNode* root = new TrieNode();
 
-    // std::cout << "Pattern files: " << pattern_files.size() << std::endl;
-    // for (const auto& file : pattern_files) {
-    //     std::cout << file << std::endl;
-    // }
-
-    // Read patterns from the pattern files
-    std::vector<std::string> patterns;
+    // Read patterns from the pattern files and insert them into the Trie tree
+    ull patternIndex = 0;
     for (const auto& pattern_file : pattern_files) {
         std::string pattern = read_file(pattern_file);
         if (!pattern.empty()) {
-            patterns.push_back(pattern);
+            insert(root, pattern, patternIndex++);
         }
     }
 
+    // matching process for each text file
     for (size_t i = 0; i < text_files.size(); ++i) {
         std::string text = read_file(text_files[i]);
         if (text.empty()) {
             continue;
         }
 
-        std::vector<std::string> matched_patterns;
-        for (size_t j = 0; j < patterns.size(); ++j) {
-            if (brute_force_search(text, patterns[j])) {
-                matched_patterns.push_back(pattern_files[j]);
-            }
-        }
+        std::unordered_map<ull, std::string> matchedPatterns = search(text, root, pattern_files);
 
-        if (!matched_patterns.empty()) {
-            std::cout <<  text_files[i];
-            for (const auto& pattern_file : matched_patterns) {
+        if (!matchedPatterns.empty()) {
+            std::cout << text_files[i];
+            for (const auto& [index, pattern_file] : matchedPatterns) {
                 std::cout << " " << pattern_file;
             }
             std::cout << std::endl;
@@ -117,6 +123,8 @@ int main() {
 
     double end_time = omp_get_wtime();
     std::cout << "Execution time: " << end_time - start_time << " seconds." << std::endl;
+
+    delete root;
 
     return 0;
 }

@@ -10,24 +10,54 @@ namespace fs = std::filesystem;
 
 typedef long long ll;
 
-// Function to perform brute-force string matching
-bool brute_force_search(const std::string& text, const std::string& pattern) {
-    ll n = text.size();
+// Function to compute the LPS (Longest Prefix Suffix) array for KMP algorithm
+std::vector<int> compute_lps(const std::string& pattern) {
     ll m = pattern.size();
-    bool found = false;
+    std::vector<int> lps(m, 0);
+    int len = 0;
+    int i = 1;
 
-    for (ll i = 0; i <= n - m; ++i) {
-        if (found) continue; // Skip remaining iterations if found
-        ll j = 0;
-        while (j < m && text[i + j] == pattern[j]) {
-            ++j;
-        }
-        if (j == m) {
-            found = true;
+    while (i < m) {
+        if (pattern[i] == pattern[len]) {
+            len++;
+            lps[i] = len;
+            i++;
+        } else {
+            if (len != 0) {
+                len = lps[len - 1];
+            } else {
+                lps[i] = 0;
+                i++;
+            }
         }
     }
+    return lps;
+}
 
-    return found;
+// Function to perform KMP string matching
+bool kmp_search(const std::string& text, const std::string& pattern) {
+    ll n = text.size();
+    ll m = pattern.size();
+    std::vector<int> lps = compute_lps(pattern);
+    int i = 0; // index for text
+    int j = 0; // index for pattern
+
+    while (i < n) {
+        if (pattern[j] == text[i]) {
+            j++;
+            i++;
+        }
+        if (j == m) {
+            return true; // Pattern found
+        } else if (i < n && pattern[j] != text[i]) {
+            if (j != 0) {
+                j = lps[j - 1];
+            } else {
+                i++;
+            }
+        }
+    }
+    return false; // Pattern not found
 }
 
 // Function to read a file into a string
@@ -73,17 +103,6 @@ int main() {
     // Get all pattern files in the patterns directory
     std::vector<std::string> pattern_files = get_all_files(patterns_directory);
 
-    // // Output the files
-    // std::cout << "Text files: " << text_files.size() << std::endl;
-    // for (const auto& file : text_files) {
-    //     std::cout << file << std::endl;
-    // }
-
-    // std::cout << "Pattern files: " << pattern_files.size() << std::endl;
-    // for (const auto& file : pattern_files) {
-    //     std::cout << file << std::endl;
-    // }
-
     // Read patterns from the pattern files
     std::vector<std::string> patterns;
     for (const auto& pattern_file : pattern_files) {
@@ -101,13 +120,13 @@ int main() {
 
         std::vector<std::string> matched_patterns;
         for (size_t j = 0; j < patterns.size(); ++j) {
-            if (brute_force_search(text, patterns[j])) {
+            if (kmp_search(text, patterns[j])) {
                 matched_patterns.push_back(pattern_files[j]);
             }
         }
 
         if (!matched_patterns.empty()) {
-            std::cout <<  text_files[i];
+            std::cout << text_files[i];
             for (const auto& pattern_file : matched_patterns) {
                 std::cout << " " << pattern_file;
             }

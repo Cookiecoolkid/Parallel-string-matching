@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <map>
 #include <omp.h>
 
 typedef unsigned long long ull;
@@ -71,6 +72,7 @@ int main() {
 
     // Read patterns from the patterns file
     std::vector<std::string> patterns;
+    std::map<std::string, std::vector<ull>> pattern_positions;
     std::string pattern;
     while (std::getline(patterns_file, pattern)) {
         patterns.push_back(pattern);
@@ -81,14 +83,17 @@ int main() {
     for (size_t i = 0; i < patterns.size(); ++i) {
         std::vector<ull> positions = brute_force_search(text, patterns[i]);
 
-        #pragma omp critical
-        {
-            std::cout << "Pattern \"" << patterns[i] << "\" found at positions: " << positions.size();
-            for (auto pos : positions) {
-                std::cout << " " << pos;
-            }
-            std::cout << std::endl;
+        pattern_positions[patterns[i]] = positions;
+    }
+
+    // Output the results in the order of patterns in target.txt
+    for (const auto& p : patterns) {
+        const auto& positions = pattern_positions[p];
+        std::cout << "Pattern \"" << p << "\" found at positions: " << positions.size();
+        for (auto pos : positions) {
+            std::cout << " " << pos;
         }
+        std::cout << std::endl;
     }
 
     double end_time = omp_get_wtime();
