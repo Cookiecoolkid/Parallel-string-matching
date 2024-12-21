@@ -13,7 +13,7 @@ typedef unsigned long long ull;
 struct TrieNode {
     std::vector<TrieNode*> children;
     bool isEndOfWord;
-    ull patternIndex; // Index of the pattern in the patterns vector
+    ull patternIndex;
 
     TrieNode() : isEndOfWord(false), patternIndex(-1) {
         children.resize(256, nullptr); // ASCII 字符集
@@ -85,10 +85,8 @@ int main() {
     std::string text_directory = "data/software_antivirus/opencv-4.10.0/";
     std::string patterns_directory = "data/software_antivirus/virus/";
 
-    // Get all text files in the text directory
     std::vector<std::string> text_files = get_all_files(text_directory);
 
-    // Get all pattern files in the patterns directory
     std::vector<std::string> pattern_files = get_all_files(patterns_directory);
 
     // Initialize the Trie tree
@@ -115,7 +113,7 @@ int main() {
         if (!matchedPatterns.empty()) {
             std::cout << text_files[i];
             for (const auto& [index, pattern_file] : matchedPatterns) {
-                std::cout << " " << pattern_file;
+                std::cout << " " << fs::path(pattern_file).filename().string();
             }
             std::cout << std::endl;
         }

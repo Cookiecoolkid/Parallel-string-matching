@@ -17,7 +17,7 @@ bool brute_force_search(const std::string& text, const std::string& pattern) {
     bool found = false;
 
     for (ll i = 0; i <= n - m; ++i) {
-        if (found) continue; // Skip remaining iterations if found
+        if (found) continue;
         ll j = 0;
         while (j < m && text[i + j] == pattern[j]) {
             ++j;
@@ -67,22 +67,9 @@ int main() {
     std::string text_directory = "data/software_antivirus/opencv-4.10.0/";
     std::string patterns_directory = "data/software_antivirus/virus/";
 
-    // Get all text files in the text directory
     std::vector<std::string> text_files = get_all_files(text_directory);
 
-    // Get all pattern files in the patterns directory
     std::vector<std::string> pattern_files = get_all_files(patterns_directory);
-
-    // // Output the files
-    // std::cout << "Text files: " << text_files.size() << std::endl;
-    // for (const auto& file : text_files) {
-    //     std::cout << file << std::endl;
-    // }
-
-    // std::cout << "Pattern files: " << pattern_files.size() << std::endl;
-    // for (const auto& file : pattern_files) {
-    //     std::cout << file << std::endl;
-    // }
 
     // Read patterns from the pattern files
     std::vector<std::string> patterns;
@@ -109,7 +96,7 @@ int main() {
         if (!matched_patterns.empty()) {
             std::cout <<  text_files[i];
             for (const auto& pattern_file : matched_patterns) {
-                std::cout << " " << pattern_file;
+                std::cout << " " << fs::path(pattern_file).filename().string();
             }
             std::cout << std::endl;
         }

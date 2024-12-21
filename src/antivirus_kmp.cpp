@@ -39,8 +39,8 @@ bool kmp_search(const std::string& text, const std::string& pattern) {
     ll n = text.size();
     ll m = pattern.size();
     std::vector<int> lps = compute_lps(pattern);
-    int i = 0; // index for text
-    int j = 0; // index for pattern
+    int i = 0; 
+    int j = 0; 
 
     while (i < n) {
         if (pattern[j] == text[i]) {
@@ -48,7 +48,7 @@ bool kmp_search(const std::string& text, const std::string& pattern) {
             i++;
         }
         if (j == m) {
-            return true; // Pattern found
+            return true;
         } else if (i < n && pattern[j] != text[i]) {
             if (j != 0) {
                 j = lps[j - 1];
@@ -57,7 +57,7 @@ bool kmp_search(const std::string& text, const std::string& pattern) {
             }
         }
     }
-    return false; // Pattern not found
+    return false;
 }
 
 // Function to read a file into a string
@@ -97,10 +97,8 @@ int main() {
     std::string text_directory = "data/software_antivirus/opencv-4.10.0/";
     std::string patterns_directory = "data/software_antivirus/virus/";
 
-    // Get all text files in the text directory
     std::vector<std::string> text_files = get_all_files(text_directory);
 
-    // Get all pattern files in the patterns directory
     std::vector<std::string> pattern_files = get_all_files(patterns_directory);
 
     // Read patterns from the pattern files
@@ -128,7 +126,7 @@ int main() {
         if (!matched_patterns.empty()) {
             std::cout << text_files[i];
             for (const auto& pattern_file : matched_patterns) {
-                std::cout << " " << pattern_file;
+                std::cout << " " << fs::path(pattern_file).filename().string();
             }
             std::cout << std::endl;
         }
