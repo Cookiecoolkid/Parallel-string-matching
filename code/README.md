@@ -1,8 +1,13 @@
 # Parallel String Matching Project
 
+### 注意，编译运行时需要将 data 文件夹放置在 code 文件夹同级目录下，否则程序无法找到测试数据文件, data 文件并不包含在提交的压缩包中
+
 ## 项目结构
 ```sh
 .
+├── data
+│   ├── document_retrieval/...
+│   └── software_antivirus/...
 ├── code
 │   ├── antivirus_brute_force.cpp
 │   ├── antivirus_brute_force_parallel.cpp
@@ -21,6 +26,8 @@
 ├── result_software.txt
 └── 实验报告_221240093_陈力峥.pdf
 ```
+
+
 
 ## 编译项目
 
