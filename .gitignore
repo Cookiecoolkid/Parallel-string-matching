@@ -34,3 +34,6 @@
 
 # Large Data files
 /data/
+
+*.zip
+*.pdf
