@@ -64,8 +64,9 @@ std::vector<std::string> get_all_files(const std::string& directory, const std::
 }
 
 int main() {
+#ifdef VERBOSE
     double start_time = omp_get_wtime();
-    
+#endif
     std::string text_directory = "data/software_antivirus/opencv-4.10.0/";
     std::string patterns_directory = "data/software_antivirus/virus/";
 
@@ -108,9 +109,10 @@ int main() {
             }
         }
     }
-
+    
+#ifdef VERBOSE
     double end_time = omp_get_wtime();
     std::cout << "Execution time: " << end_time - start_time << " seconds." << std::endl;
-
+#endif
     return 0;
 }

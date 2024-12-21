@@ -50,8 +50,9 @@ std::string read_file(const std::string& filename) {
 }
 
 int main() {
+#ifdef VERBOSE
     double start_time = omp_get_wtime();
-    
+#endif
     std::string textfile = "./data/document_retrieval/document.txt";
     std::string patternsfile = "./data/document_retrieval/target.txt";
 
@@ -78,16 +79,17 @@ int main() {
     for (size_t i = 0; i < patterns.size(); ++i) {
         std::vector<ull> positions = brute_force_search(text, patterns[i]);
         
-        std::cout << "Pattern \"" << patterns[i] << "\" found at positions: " << positions.size();
+        std::cout << positions.size();
         for (auto pos : positions) {
             std::cout << " " << pos;
         }
         std::cout << std::endl;
     }
 
+#ifdef VERBOSE
     double end_time = omp_get_wtime();
     std::cout << "Execution time: " << end_time - start_time << " seconds." << std::endl;
-
+#endif
     patterns_file.close();
 
     return 0;

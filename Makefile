@@ -2,6 +2,10 @@ CXX = g++
 
 CXXFLAGS = -std=c++17 -fopenmp -g -Wall -Wextra -Wno-unused-parameter -Wno-unused-variable -fstack-protector-all
 
+ifdef VERBOSE
+CXXFLAGS += -DVERBOSE
+endif
+
 SRCS = $(wildcard src/*.cpp)
 
 OBJDIR = build

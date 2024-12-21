@@ -77,8 +77,9 @@ std::string read_file(const std::string& filename) {
 }
 
 int main() {
+#ifdef VERBOSE
     double start_time = omp_get_wtime();
-    
+#endif
     std::string textfile = "./data/document_retrieval/document.txt";
     std::string patternsfile = "./data/document_retrieval/target.txt";
 
@@ -114,19 +115,20 @@ int main() {
     for (const auto& pattern : patterns) {
         auto it = foundPositions.find(pattern);
         if (it != foundPositions.end()) {
-            std::cout << "Pattern \"" << pattern << "\" found at positions: " << it->second.size();
+            std::cout << it->second.size();
             for (auto pos : it->second) {
                 std::cout << " " << pos;
             }
             std::cout << std::endl;
         } else {
-            std::cout << "Pattern \"" << pattern << "\" found at positions: 0" << std::endl;
+            std::cout << "0" << std::endl;
         }
     }
 
+#ifdef VERBOSE
     double end_time = omp_get_wtime();
     std::cout << "Execution time: " << end_time - start_time << " seconds." << std::endl;
-
+#endif
     delete root;
     patterns_file.close();
 
