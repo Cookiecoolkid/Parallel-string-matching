@@ -18,7 +18,8 @@
 │   └── document_trie_parallel.cpp
 ├── Makefile
 ├── result_document.txt
-└── result_software.txt
+├── result_software.txt
+└── 实验报告_221240093_陈力峥.pdf
 ```
 
 ## 编译项目
@@ -45,19 +46,22 @@ make clean
 得到的可执行文件将会被放置在项目根目录下。
 
 ## 代码文件说明
-antivirus_brute_force.cpp：使用暴力算法进行病毒检测。
-antivirus_brute_force_parallel.cpp：使用并行暴力算法进行病毒检测。
-antivirus_kmp.cpp：使用KMP算法进行病毒检测。
-antivirus_kmp_parallel.cpp：使用并行KMP算法进行病毒检测。
-antivirus_trie.cpp：使用Trie树进行病毒检测。
-antivirus_trie_parallel.cpp：使用并行Trie树进行病毒检测。
-document_brute_force.cpp：使用暴力算法进行文档匹配。
-document_brute_force_parallel.cpp：使用并行暴力算法进行文档匹配。
-document_kmp.cpp：使用KMP算法进行文档匹配。
-document_kmp_parallel.cpp：使用并行KMP算法进行文档匹配。
-document_trie.cpp：使用Trie树进行文档匹配。
-document_trie_parallel.cpp：使用并行Trie树进行文档匹配。
+- antivirus_brute_force.cpp：使用暴力算法进行病毒检测。
+- antivirus_brute_force_parallel.cpp：使用并行暴力算法进行病毒检测。
+- antivirus_kmp.cpp：使用KMP算法进行病毒检测。
+- antivirus_kmp_parallel.cpp：使用并行KMP算法进行病毒检测。
+- antivirus_trie.cpp：使用Trie树进行病毒检测。
+- antivirus_trie_parallel.cpp：使用并行Trie树进行病毒检测。
+- document_brute_force.cpp：使用暴力算法进行文档匹配。
+- document_brute_force_parallel.cpp：使用并行暴力算法进行文档匹配。
+- document_kmp.cpp：使用KMP算法进行文档匹配。
+- document_kmp_parallel.cpp：使用并行KMP算法进行文档匹配。
+- document_trie.cpp：使用Trie树进行文档匹配。
+- document_trie_parallel.cpp：使用并行Trie树进行文档匹配。
+- 更具体的说明可查看实验报告。
 
+## 复现检查
 - 针对场景一文档检索，对于使用了并行算法(_parallel后缀)的代码，以 `document_trie_parallel.cpp` 性能最为优秀，可以通过运行这个文件对应的可执行文件进行测试。
 - 针对场景二病毒检测，对于使用了并行算法(_parallel后缀)的代码，以 `antivirus_trie_parallel.cpp` 性能最为优秀，可以通过运行这个文件对应的可执行文件进行测试。
 - 可以选择 `make VERBOSE=1` 编译，运行时输出执行时间更便于复现检查。
+- `result_document.txt` 和 `result_software.txt` 分别为 `document_trie_parallel.cpp` 和 `antivirus_trie_parallel.cpp` 的输出结果，但由于是并行算法，每次运行结果的每一行的 `pos` 以及 `virus*.bin`的顺序可能有所不同，但并不影响结果正确性。

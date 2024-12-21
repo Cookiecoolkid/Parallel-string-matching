@@ -6,15 +6,15 @@ ifdef VERBOSE
 CXXFLAGS += -DVERBOSE
 endif
 
-SRCS = $(wildcard src/*.cpp)
+SRCS = $(wildcard code/*.cpp)
 
 OBJDIR = build
 
 # Generate object files list
-OBJS = $(patsubst src/%.cpp, $(OBJDIR)/%.o, $(SRCS))
+OBJS = $(patsubst code/%.cpp, $(OBJDIR)/%.o, $(SRCS))
 
 # Generate target executables list
-TARGETS = $(patsubst src/%.cpp, %, $(SRCS))
+TARGETS = $(patsubst code/%.cpp, %, $(SRCS))
 
 all: $(TARGETS)
 
@@ -23,7 +23,7 @@ all: $(TARGETS)
 	$(CXX) $(CXXFLAGS) $< -o $@
 
 # Rule to compile each source file to object file
-$(OBJDIR)/%.o: src/%.cpp | $(OBJDIR)
+$(OBJDIR)/%.o: code/%.cpp | $(OBJDIR)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 # Create the build directory if it doesn't exist
